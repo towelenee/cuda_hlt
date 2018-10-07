@@ -579,6 +579,67 @@ cudaError_t Stream::run_sequence(
       }
     }*/
 
+    //Hardcoded catboost features
+    std::vector<std::vector<float>> features;
+    for (int i = 0; i < number_of_events; ++i) {
+      std::vector<float> event = { 2, 2, 1, 1, 5, 3, 7, 3, 1, 0, 7, 3, 
+                                  -1.0408108, -0.7461224, -0.75673074, -0.8203014, 
+                                  -1.0784016, -0.8081739, -0.5914081, -0.4181551 };
+      features.push_back(event);
+    }
+
+    for (int i = 0; i < number_of_events; ++i) {
+      cudaCheck(cudaMalloc((void**)&host_features[i], model_float_feature_num*sizeof(float)));
+      cudaCheck(cudaMemcpy(host_features[i], features[i].data(), model_float_feature_num*sizeof(float),cudaMemcpyHostToDevice));
+    }
+    
+    arguments.set_size<arg::dev_borders>(model_float_feature_num);
+    arguments.set_size<arg::dev_features>(number_of_events * model_float_feature_num);
+    arguments.set_size<arg::dev_border_nums>(model_float_feature_num);
+    arguments.set_size<arg::dev_bin_features>(number_of_events * model_bin_feature_num);
+    scheduler.setup_next(arguments, sequence_step++);
+
+    cudaCheck(cudaMemcpyAsync(arguments.offset<arg::dev_borders>(), host_borders, model_float_feature_num * sizeof(float*), cudaMemcpyHostToDevice, stream));
+    cudaCheck(cudaMemcpyAsync(arguments.offset<arg::dev_features>(), host_features, number_of_events * sizeof(float*), cudaMemcpyHostToDevice, stream));
+    cudaCheck(cudaMemcpyAsync(arguments.offset<arg::dev_border_nums>(), host_border_nums, model_float_feature_num * sizeof(int), cudaMemcpyHostToDevice, stream));
+    
+    sequence.set_opts<seq::gen_bin_features>(dim3(number_of_events), dim3(model_float_feature_num), stream);
+    sequence.set_arguments<seq::gen_bin_features>(
+      arguments.offset<arg::dev_borders>(),
+      arguments.offset<arg::dev_features>(),
+      arguments.offset<arg::dev_border_nums>(),
+      arguments.offset<arg::dev_bin_features>(),
+      number_of_events,
+      model_bin_feature_num
+    );
+    sequence.invoke<seq::gen_bin_features>();
+     
+    arguments.set_size<arg::dev_tree_splits>(tree_num);
+    arguments.set_size<arg::dev_leaf_values>(tree_num);
+    arguments.set_size<arg::dev_tree_sizes>(tree_num);
+    arguments.set_size<arg::dev_catboost_output>(number_of_events);
+    scheduler.setup_next(arguments, sequence_step++);
+
+    cudaCheck(cudaMemcpyAsync(arguments.offset<arg::dev_tree_splits>(), host_tree_splits, tree_num * sizeof(int*), cudaMemcpyHostToDevice, stream));
+    cudaCheck(cudaMemcpyAsync(arguments.offset<arg::dev_leaf_values>(), host_leaf_values, tree_num * sizeof(double*), cudaMemcpyHostToDevice, stream));
+    cudaCheck(cudaMemcpyAsync(arguments.offset<arg::dev_tree_sizes>(), host_tree_sizes, tree_num * sizeof(int), cudaMemcpyHostToDevice, stream));
+    sequence.set_opts<seq::catboost_evaluator>(dim3(number_of_events), dim3(32), stream, 32*sizeof(float));
+    sequence.set_arguments<seq::catboost_evaluator>(
+      arguments.offset<arg::dev_tree_splits>(),
+      arguments.offset<arg::dev_leaf_values>(),
+      arguments.offset<arg::dev_tree_sizes>(),
+      arguments.offset<arg::dev_catboost_output>(),
+      arguments.offset<arg::dev_bin_features>(),
+      tree_num,
+      number_of_events,
+      model_bin_feature_num
+    );
+    sequence.invoke<seq::catboost_evaluator>();
+
+    cudaCheck(cudaMemcpyAsync(host_catboost_output, arguments.offset<arg::dev_catboost_output>(), number_of_events*sizeof(float), cudaMemcpyDeviceToHost, stream));
+    cudaEventRecord(cuda_generic_event, stream);
+    cudaEventSynchronize(cuda_generic_event);
+
     ///////////////////////
     // Monte Carlo Check //
     ///////////////////////

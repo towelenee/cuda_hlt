@@ -56,6 +56,7 @@ add_subdirectory(stream)
 add_subdirectory(checker)
 add_subdirectory(x86/velo/clustering)
 add_subdirectory(x86/veloUT/PrVeloUT)
+add_subdirectory(catboost)
 
 # Include directories
 include_directories(main/include)
@@ -74,6 +75,7 @@ include_directories(cuda/event_model/velo/include)
 include_directories(cuda/event_model/common/include)
 include_directories(checker/tracking/include)
 include_directories(stream/sequence/include)
+include_directories(catboost/include)
 
 # Files from source directories
 file(GLOB main_sources "main/src/*")
@@ -93,6 +95,7 @@ if ( ROOT_FOUND )
     SciFi
     TrackChecking
     CheckClustering
+    Catboost
     ${ROOT_LIBRARIES})
 else()
   target_link_libraries(cu_hlt
@@ -105,5 +108,9 @@ else()
     x86Clustering
     SciFi
     TrackChecking
-    CheckClustering)
+    CheckClustering
+    Catboost)
 endif()
+
+enable_testing ()
+add_subdirectory (test)

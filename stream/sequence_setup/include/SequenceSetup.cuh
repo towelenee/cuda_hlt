@@ -18,6 +18,8 @@
 #include "TupleIndicesChecker.cuh"
 #include "SequenceArgumentEnum.cuh"
 #include "VeloEventModel.cuh"
+#include "Evaluator.cuh"
+#include "GenerateBinFeatures.cuh"
 
 /**
  * @brief Algorithm tuple definition. All algorithms in the sequence
@@ -53,7 +55,9 @@ constexpr auto sequence_algorithms() {
     prefix_sum_single_block,
     prefix_sum_scan,
     raw_bank_decoder,
-    scifi_sort_by_x
+    scifi_sort_by_x,
+    gen_bin_features,
+    catboost_evaluator
   );
 }
 
@@ -116,7 +120,15 @@ using argument_tuple_t = std::tuple<
   Argument<arg::dev_prefix_sum_auxiliary_array_4, uint>,
   Argument<arg::dev_scifi_hit_permutations, uint>,
   Argument<arg::dev_scifi_hits, char>,
-  Argument<arg::dev_scifi_raw_input, char>
+  Argument<arg::dev_scifi_raw_input, char>,
+  Argument<arg::dev_borders, float*>,
+  Argument<arg::dev_features, float*>,
+  Argument<arg::dev_border_nums, int>,
+  Argument<arg::dev_bin_features, unsigned char>,
+  Argument<arg::dev_tree_splits, int*>,
+  Argument<arg::dev_leaf_values, double*>,
+  Argument<arg::dev_tree_sizes, int>,
+  Argument<arg::dev_catboost_output, float>
 >;
 
 /**

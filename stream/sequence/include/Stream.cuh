@@ -18,6 +18,7 @@
 #include "run_VeloUT_CPU.h"
 #include "VeloEventModel.cuh"
 #include "UTDefinitions.cuh"
+#include "Catboost.h"
 
 class Timer;
 
@@ -66,6 +67,21 @@ struct Stream {
   char* dev_scifi_geometry;
   char* dev_base_pointer;
   PrUTMagnetTool* dev_ut_magnet_tool;
+
+  //Catboost
+  int tree_num;
+  int model_float_feature_num;
+  int model_bin_feature_num;
+  int* host_tree_sizes;
+  int* host_border_nums;
+  int** host_tree_splits;
+  float* host_catboost_output;
+  float** host_borders;
+  float** host_features;
+  double** host_leaf_values;
+  const int* treeSplitsPtr_flat;
+  const double* leafValuesPtr_flat;
+  const NCatBoostFbs::TObliviousTrees* ObliviousTrees;
 
   // Monte Carlo folder name
   std::string folder_name_MC;

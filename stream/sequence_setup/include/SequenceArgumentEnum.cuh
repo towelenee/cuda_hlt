@@ -33,7 +33,9 @@ enum seq_enum_t {
   prefix_sum_single_block_scifi_hits,
   prefix_sum_scan_scifi_hits,
   raw_bank_decoder,
-  scifi_sort_by_x
+  scifi_sort_by_x,
+  gen_bin_features,
+  catboost_evaluator
 };
 }
 
@@ -78,6 +80,14 @@ enum arg_enum_t {
   dev_prefix_sum_auxiliary_array_4,
   dev_scifi_hit_permutations,
   dev_scifi_hits,
-  dev_scifi_raw_input
+  dev_scifi_raw_input,
+  dev_borders,
+  dev_features,
+  dev_border_nums,
+  dev_bin_features,
+  dev_tree_splits,
+  dev_leaf_values,
+  dev_tree_sizes,
+  dev_catboost_output
 };
 }

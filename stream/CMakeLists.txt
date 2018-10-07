@@ -1,3 +1,6 @@
+LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/catboost") 
+set(flatbuffers_home "${CMAKE_SOURCE_DIR}/../flatbuffers")
+set(catboost_home "${CMAKE_SOURCE_DIR}/../catboost")
 
 include_directories(gear/include)
 include_directories(handlers/include)
@@ -27,6 +30,12 @@ include_directories(../x86/velo/clustering/include)
 include_directories(../x86/veloUT/PrVeloUT/include)
 include_directories(../checker/tracking/include)
 include_directories(../cuda/utils/include)
+include_directories(../catboost/include)
+
+find_package(flatbuffers REQUIRED)
+find_package(catboost REQUIRED)
+include_directories(${flatbuffers_INCLUDE_DIRS})
+include_directories(${catboost_INCLUDE_DIRS})
 
 file(GLOB stream_gear "gear/src/*cu")
 file(GLOB stream_handlers "handlers/src/*cu")
@@ -55,6 +64,8 @@ if ( ROOT_FOUND )
   UT
   SciFi
   x86VeloUT
+  Catboost
+  Evaluator
   ${ROOT_LIBRARIES})
 else()
   target_link_libraries(Stream
@@ -62,5 +73,7 @@ else()
   Velo
   UT
   SciFi
-  x86VeloUT)
+  x86VeloUT
+  Catboost
+  Evaluator)
 endif()

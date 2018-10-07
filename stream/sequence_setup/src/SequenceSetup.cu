@@ -30,6 +30,9 @@ std::array<std::string, std::tuple_size<algorithm_tuple_t>::value> get_sequence_
   a[seq::prefix_sum_scan_ut_hits] = "Prefix sum scan (4) SciFi hits";
   a[seq::raw_bank_decoder] = "Decode SciFi raw banks";
   a[seq::scifi_sort_by_x] = "Sort SciFi hits by X";
+  a[seq::gen_bin_features] = "Binary features generation for Catboost";
+  a[seq::catboost_evaluator] = "Catboost model evaluation";
+
   return a;
 }
 
@@ -71,6 +74,14 @@ std::array<std::string, std::tuple_size<argument_tuple_t>::value> get_argument_n
   a[arg::dev_scifi_hit_permutations] = "dev_scifi_hit_permutations";
   a[arg::dev_prefix_sum_auxiliary_array_4] = "dev_prefix_sum_auxiliary_array_4";
   a[arg::dev_scifi_hits] = "dev_scifi_hits";
+  a[arg::dev_borders] = "dev_borders";
+  a[arg::dev_features] = "dev_features";
+  a[arg::dev_border_nums] = "dev_border_nums";
+  a[arg::dev_bin_features] = "dev_bin_features";
+  a[arg::dev_tree_splits] = "dev_tree_splits";
+  a[arg::dev_leaf_values] = "dev_leaf_values";
+  a[arg::dev_tree_sizes] = "dev_tree_sizes";
+  a[arg::dev_catboost_output] = "dev_catboost_output";
   return a;
 }
 
@@ -240,6 +251,19 @@ std::vector<std::vector<int>> get_sequence_dependencies() {
     arg::dev_scifi_hits,
     arg::dev_scifi_hit_count,
     arg::dev_scifi_hit_permutations
+  };
+  sequence_dependencies[seq::gen_bin_features] = {
+    arg::dev_borders,
+    arg::dev_features,
+    arg::dev_border_nums,
+    arg::dev_bin_features
+  };
+  sequence_dependencies[seq::catboost_evaluator] = {
+    arg::dev_tree_splits,
+    arg::dev_leaf_values,
+    arg::dev_tree_sizes,
+    arg::dev_catboost_output,
+    arg::dev_bin_features
   };
 
   return sequence_dependencies;
