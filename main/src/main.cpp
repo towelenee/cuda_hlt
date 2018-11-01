@@ -54,8 +54,6 @@ void printUsage(char* argv[]){
 
 int main(int argc, char *argv[])
 {
-  std::string folder_name_velopix_raw;
-  std::string folder_name_UT_raw = "";
   std::string folder_name_scifi_hits = "";
   std::string folder_name_muon_hits = "";
   std::string folder_name_raw_banks = "../input/minbias/banks/";
@@ -173,20 +171,6 @@ int main(int argc, char *argv[])
   std::string folder_name_velopix_raw = folder_name_raw_banks + "VP";
   number_of_events_requested = get_number_of_events_requested(
     number_of_events_requested, folder_name_velopix_raw);
-
-  // Read SciFi hits
-  std::vector<char> scifi_events;
-  std::vector<unsigned int> scifi_event_offsets;
-  verbose_cout << "Reading SciFi hits for " << number_of_events_requested << " events " << std::endl;
-  read_folder( folder_name_scifi_hits, number_of_events_requested,
-               scifi_events, scifi_event_offsets,
-               start_event_offset );
-
-  SciFi::HitsSoA *scifi_hits_events = new SciFi::HitsSoA[number_of_events_requested];
-  uint32_t scifi_n_hits_layers_events[number_of_events_requested][SciFi::Constants::n_zones];
-  read_scifi_events_into_arrays( scifi_hits_events, scifi_n_hits_layers_events,
-                              scifi_events, scifi_event_offsets, number_of_events_requested );
-  //check_scifi_events( scifi_hits_events, scifi_n_hits_layers_events, number_of_events );
 
   // Read muon hits
   std::vector<char> muon_events;
